@@ -10,7 +10,7 @@ public class ChessBoard {
         for(int i=0;i<9;i++){
             for(int j=0;j<7;j++){
                 GameBoard[i][j]=new LandCell();
-                }
+                }}
         //RIVERCELL
         GameBoard [1][3] = new RiverCell();
         GameBoard [2][3] = new RiverCell();
