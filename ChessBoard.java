@@ -4,8 +4,13 @@ import Model.Animal.Animals;
 import Model.Animal.Person;
 
 public class ChessBoard {
-    private Cell [][] GameBoard= new Cell[7][9];
+    private Cell [][] GameBoard= new Cell[9][7];
     public ChessBoard(Person RED, Person BLUE){
+        //填数组
+        for(int i=0;i<9;i++){
+            for(int j=0;j<7;j++){
+                Cell[i][j]=new LandCell();
+                }
         //RIVERCELL
         GameBoard [1][3] = new RiverCell();
         GameBoard [2][3] = new RiverCell();
