@@ -1,41 +1,58 @@
 package Model.Chess;
 
-import Model.Animal.Animals;
-import Model.Animal.Person;
+import Model.Animal.*;
 
 public class ChessBoard {
     private Cell [][] GameBoard= new Cell[9][7];
     public ChessBoard(Person RED, Person BLUE){
-        //填数组
+        //棋盘创建，红方在上，蓝方在下
         for(int i=0;i<9;i++){
             for(int j=0;j<7;j++){
                 GameBoard[i][j]=new LandCell();
-                }}
+            }}
         //RIVERCELL
-        GameBoard [1][3] = new RiverCell();
-        GameBoard [2][3] = new RiverCell();
-        GameBoard [1][4] = new RiverCell();
-        GameBoard [2][4] = new RiverCell();
-        GameBoard [1][5] = new RiverCell();
-        GameBoard [2][5] = new RiverCell();
-        GameBoard [5][3] = new RiverCell();
-        GameBoard [4][3] = new RiverCell();
+        GameBoard [3][1] = new RiverCell();
+        GameBoard [3][2] = new RiverCell();
+        GameBoard [3][4] = new RiverCell();
+        GameBoard [3][5] = new RiverCell();
+        GameBoard [4][1] = new RiverCell();
+        GameBoard [4][2] = new RiverCell();
         GameBoard [4][4] = new RiverCell();
         GameBoard [4][5] = new RiverCell();
+        GameBoard [5][1] = new RiverCell();
+        GameBoard [5][2] = new RiverCell();
         GameBoard [5][4] = new RiverCell();
         GameBoard [5][5] = new RiverCell();
-        //TRACKCELL
-        GameBoard [2][0] = new TrapCell(-1);
-        GameBoard [4][0] = new TrapCell(-1);
-        GameBoard [3][1] = new TrapCell(-1);
-        GameBoard [2][8] = new TrapCell(1);
-        GameBoard [4][8] = new TrapCell(1);
-        GameBoard [3][7] = new TrapCell(1);
+        //TRAPCELL
+        GameBoard [0][2] = new TrapCell(-1);
+        GameBoard [0][4] = new TrapCell(-1);
+        GameBoard [1][3] = new TrapCell(-1);
+        GameBoard [7][3] = new TrapCell(1);
+        GameBoard [8][2] = new TrapCell(1);
+        GameBoard [8][4] = new TrapCell(1);
         //HOMECELL
-        GameBoard [3][0] = new TrapCell(-1);
-        GameBoard [3][8] = new TrapCell(1);
+        GameBoard [0][3] = new HomeCell(-1);
+        GameBoard [8][3] = new HomeCell(1);
+        //设置棋子
+        //红方
+        GameBoard [0][0].setAnimal(new Lion(-1));
+        GameBoard [0][6].setAnimal(new Tiger(-1));
+        GameBoard [1][1].setAnimal(new Dog(-1));
+        GameBoard [1][5].setAnimal(new Cat(-1));
+        GameBoard [2][0].setAnimal(new Rat(-1));
+        GameBoard [2][2].setAnimal(new Leopard(-1));
+        GameBoard [2][4].setAnimal(new Wolf(-1));
+        GameBoard [2][6].setAnimal(new Elephant(-1));
+        //蓝方
+        GameBoard [8][6].setAnimal(new Lion(1));
+        GameBoard [8][0].setAnimal(new Tiger(1));
+        GameBoard [7][5].setAnimal(new Dog(1));
+        GameBoard [7][1].setAnimal(new Cat(1));
+        GameBoard [6][6].setAnimal(new Rat(1));
+        GameBoard [6][4].setAnimal(new Leopard(1));
+        GameBoard [2][4].setAnimal(new Wolf(1));
+        GameBoard [6][0].setAnimal(new Elephant(1));
     }
-
     public void setGameBoard(Cell[][] gameBoard) {
         GameBoard = gameBoard;
     }
@@ -43,7 +60,7 @@ public class ChessBoard {
     public Cell[][] getGameBoard() {
         return GameBoard;
     }
-    public void setCell(int row, int col, Animals animals){
+    public void setCellAnimal(int row, int col, Animals animals){
         GameBoard [row][col] .setAnimal(animals);
     }
 }
