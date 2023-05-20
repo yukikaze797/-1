@@ -31,11 +31,9 @@ public class Cell {
     public void setAnimal(Animals animal) {
         this.animal = animal;
     }
-    public void setAnimals(Animals animal){
-        this.animal=animal;
-    }
-    public Animals getAnimals(){
-        return this.animal;
+    public void ChessRemove(){
+        this.HasChess = false;
+        this.animal = null;
     }
 
     public int getBelong() {
