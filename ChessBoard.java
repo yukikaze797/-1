@@ -9,7 +9,7 @@ public class ChessBoard {
         //填数组
         for(int i=0;i<9;i++){
             for(int j=0;j<7;j++){
-                Cell[i][j]=new LandCell();
+                GameBoard[i][j]=new LandCell();
                 }
         //RIVERCELL
         GameBoard [1][3] = new RiverCell();
