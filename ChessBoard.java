@@ -50,7 +50,7 @@ public class ChessBoard {
         GameBoard [7][1].setAnimal(new Cat(1));
         GameBoard [6][6].setAnimal(new Rat(1));
         GameBoard [6][4].setAnimal(new Leopard(1));
-        GameBoard [2][4].setAnimal(new Wolf(1));
+        GameBoard [6][2].setAnimal(new Wolf(1));
         GameBoard [6][0].setAnimal(new Elephant(1));
     }
     public void setGameBoard(Cell[][] gameBoard) {
@@ -62,5 +62,49 @@ public class ChessBoard {
     }
     public void setCellAnimal(int row, int col, Animals animals){
         GameBoard [row][col] .setAnimal(animals);
+    }
+    //红方剩余棋子
+    public int RedAnimal(){
+        int count = 0;
+        for(int i = 0;i<9;i++){
+            for(int j = 0;j<7;j++){
+                if(GameBoard[i][j].isHasChess() && GameBoard[i][j].getAnimal().getRank()<0){
+                    count +=1;
+                }else if(GameBoard[i][j].isHasChess() &&GameBoard[i][j].getAnimal().getRank()==0 && GameBoard[i][j].getBelong()==1){
+                    count +=1;
+                }else{
+                }
+            }
+        }
+        return count;
+    }
+    //蓝方剩余棋子
+    public int BlueAnimal(){
+        int count = 0;
+        for(int i = 0;i<9;i++){
+            for(int j = 0;j<7;j++){
+                if(GameBoard[i][j].isHasChess() && GameBoard[i][j].getAnimal().getRank()>0){
+                    count +=1;
+                }else if(GameBoard[i][j].isHasChess() && GameBoard[i][j].getAnimal().getRank()==0 && GameBoard[i][j].getBelong()==-1){
+                    count +=1;
+                }else{
+                }
+            }
+        }
+        return count;
+    }
+//胜负判断
+    public int WinTest(){
+        if(GameBoard[0][3].isHasChess() && GameBoard[0][3].getAnimal().getRank() > 0){
+        return 1;
+        }else if(GameBoard[8][3].isHasChess() && GameBoard[8][3].getAnimal().getRank() < 0){
+        return -1;
+        } else if (this.RedAnimal()==0) {
+            return 1;
+        }else if(this.BlueAnimal()==0){
+            return -1;
+        }else{
+            return 0;
+        }
     }
 }
