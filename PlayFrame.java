@@ -8,9 +8,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.Point;
+//游戏窗口
 
 
 public class PlayFrame extends JFrame {
+        //储存图片路径
         private String[] PicturePath = {
                 "src/main/java/View/picture/rat.jpg",
                 "src/main/java/View/picture/cat.jpg",
@@ -25,15 +27,21 @@ public class PlayFrame extends JFrame {
                 "src/main/java/View/picture/home.jpg",
                 "src/main/java/View/picture/trap.jpg"
         };
+        //具体游戏窗口
         private JFrame frame = new JFrame("游戏中");
+        //棋盘所在面板
         private JPanel panel1;
+        //按钮所在面板
         private JPanel panel2;
+        //棋盘格子大小
         private int gridx = 80;
         private int gridy = 80;
+        //使用存档生成窗口
 
         public PlayFrame(ChessBoard board) {
             frame.setSize(600, 600);
             MyMouseListener listener =new MyMouseListener();
+            //棋盘可视化的Jlabel数组，之后根据返回的坐标对这个数组更改，通过该数组绘制棋盘
             JLabel [][] JBoard = Transit(board);
             panel1 = drawBoard(JBoard);
             frame.add(panel1);
@@ -122,7 +130,7 @@ public class PlayFrame extends JFrame {
             }
             return board;
         }*/
-    //给panel1用的方法
+    //给panel1用的方法，将存档转为Jlabel数组
         public JLabel [][] Transit(ChessBoard board){
             JLabel[][] JBoard = new JLabel[9][7];
             for (int i = 0; i < 9; i++) {
@@ -195,6 +203,7 @@ public class PlayFrame extends JFrame {
         }
             return JBoard;
         }
+        //根据Jlabel数组绘制棋盘，返回类型为Panel
         public JPanel drawBoard(JLabel[][] JBoard){
             JPanel board = new JPanel();
             board.setSize(560, 720);
@@ -207,7 +216,7 @@ public class PlayFrame extends JFrame {
             board.setPreferredSize(new Dimension(560,720));
             return board;
         }
-        //给panel2用的方法
+        //给panel2用的方法，功能按键面板设置
     public JPanel FPanel(){
             JPanel FPanel =new JPanel();
             FPanel.setSize(100,600);
@@ -232,7 +241,7 @@ public class PlayFrame extends JFrame {
             }
 
             public int getLastClickedX() {
-                return lastClickedX/80;
+                return lastClickedX;
             }
             public int getLastClickedY(){
                 return lastClickedY;
