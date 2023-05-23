@@ -2,6 +2,7 @@ package Model.Animal;
 
 public class Dog extends Animals {
     public Dog(int number){
+        this.setName("dog")
         this.setRank(3*number);
     }
     @Override
