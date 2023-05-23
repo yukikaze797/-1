@@ -54,82 +54,6 @@ public class PlayFrame extends JFrame {
 
             frame.setVisible(true);
         }
-//将存档绘制，在导入存档时使用
-       /* public JPanel drawBoard(ChessBoard chessBoard,MyMouseListener listener) {
-            JPanel board = new JPanel();
-            board.setSize(1000, 950);
-            board.setLayout(null);
-            for (int i = 0; i < 9; i++) {
-                for (int j = 0; j < 7; j++) {
-                    JLabel cell = new JLabel();
-                    cell.setLocation(j * gridx, i * gridy);
-                    cell.setSize(80, 80);
-                    cell.addMouseListener(listener);
-                    String name;
-                    if (chessBoard.getGameBoard()[i][j].isHasChess()) {
-                        name = chessBoard.getGameBoard()[i][j].getAnimal().getName();
-                    } else {
-                        name = "null";
-                    }
-                    CellType type = chessBoard.getGameBoard()[i][j].getType();
-                    if(name.equals("rat")){
-                        cell.setIcon(new ImageIcon(PicturePath[0]));
-                        cell.setBorder(BorderFactory.createLineBorder(Color.black));
-                        board.add(cell);
-                    }else if(name.equals("cat")){
-                        cell.setIcon(new ImageIcon(PicturePath[1]));
-                        cell.setBorder(BorderFactory.createLineBorder(Color.black));
-                        board.add(cell);
-                    }else if(name.equals("dog")){
-                        cell.setIcon(new ImageIcon(PicturePath[2]));
-                        cell.setBorder(BorderFactory.createLineBorder(Color.black));
-                        board.add(cell);
-                    }else if(name.equals("wolf")){
-                        cell.setIcon(new ImageIcon(PicturePath[3]));
-                        cell.setBorder(BorderFactory.createLineBorder(Color.black));
-                        board.add(cell);
-                    }else if(name.equals("tiger")){
-                        cell.setIcon(new ImageIcon(PicturePath[4]));
-                        cell.setBorder(BorderFactory.createLineBorder(Color.black));
-                        board.add(cell);
-                    }else if(name.equals("leopard")){
-                        cell.setIcon(new ImageIcon(PicturePath[5]));
-                        cell.setBorder(BorderFactory.createLineBorder(Color.black));
-                        board.add(cell);
-                    }else if(name.equals("lion")){
-                        cell.setIcon(new ImageIcon(PicturePath[6]));
-                        cell.setBorder(BorderFactory.createLineBorder(Color.black));
-                        board.add(cell);
-                    }else if(name.equals("elephant")){
-                        cell.setIcon(new ImageIcon(PicturePath[7]));
-                        cell.setBorder(BorderFactory.createLineBorder(Color.black));
-                        board.add(cell);
-                    }else {
-                        if(type==CellType.BLANK){
-                            cell.setIcon(new ImageIcon(PicturePath[9]));
-                            cell.setBorder(BorderFactory.createLineBorder(Color.black));
-                            board.add(cell);
-                        }else if(type==CellType.HOME){
-                            cell.setIcon(new ImageIcon(PicturePath[10]));
-                            cell.setBorder(BorderFactory.createLineBorder(Color.black));
-                            board.add(cell);
-                        }else if(type==CellType.RIVER){
-                            cell.setIcon(new ImageIcon(PicturePath[8]));
-                            cell.setBorder(BorderFactory.createLineBorder(Color.black));
-                            board.add(cell);
-                        }else if(type==CellType.TRAP){
-                            ImageIcon icon = new ImageIcon(PicturePath[11]);
-                            cell.setIcon(icon);
-                            cell.setBorder(BorderFactory.createLineBorder(Color.black));
-                            board.add(cell);
-                        }else{
-                        }
-                    }
-
-                }
-            }
-            return board;
-        }*/
     //给panel1用的方法，将存档转为Jlabel数组
         public JLabel [][] Transit(ChessBoard board){
             JLabel[][] JBoard = new JLabel[9][7];
@@ -234,17 +158,20 @@ public class PlayFrame extends JFrame {
         //鼠标事件适配器
         public class MyMouseListener extends MouseAdapter {
             //获取鼠标单击的位置相对容器坐标
-            private int lastClickedX;
-            private int lastClickedY;
+           //默认值为 -1
+            private int lastClickedCol =-1;
+            private int lastClickedRow =-1;
             @Override
             public void mouseClicked(MouseEvent e) {
+                lastClickedCol =(int)Math.floor(e.getComponent().getX()/80);
+                lastClickedRow =(int)Math.floor(e.getComponent().getY()/80);
             }
 
-            public int getLastClickedX() {
-                return lastClickedX;
+            public int getLastClickedCol() {
+                return lastClickedCol;
             }
-            public int getLastClickedY(){
-                return lastClickedY;
+            public int getLastClickedRow(){
+                return lastClickedRow;
             }
         }
     }
