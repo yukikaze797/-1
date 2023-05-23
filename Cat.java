@@ -2,6 +2,7 @@ package Model.Animal;
 
 public class Cat extends Animals {
     public Cat(int nuber){
+        this.setName("cat")
         this.setRank(2);
     }
     public int getRank() {
