@@ -7,7 +7,8 @@ import java.io.*;
 
 public class ChessBoard {
     //当前走棋方
-    private int PlayerCode=1;
+    //回合数，偶数蓝方，奇数红方
+    private int turns=0;
     private Cell [][] GameBoard= new Cell[9][7];
     //设置有棋子位置的棋盘
     public ChessBoard(Person RED, Person BLUE){
@@ -212,7 +213,7 @@ public class ChessBoard {
             str[5] = GameBoard[8][4].getAnimal().getName();
         }
 
-
+//陷阱6格
         for (int i = 0; i < 6; i++) {
             if(str[i].equals("rat")){
                     rank[i] = 1;
@@ -230,10 +231,11 @@ public class ChessBoard {
                 rank[i] = 7;
             }else if(str[i].equals("elephant")){
                 rank[i] = 8;
-            }else{
-                rank[i] = 0;
+            }/*else if(str[i].equals("null")){
+                rank[i] = 10;
+            }*/else {
+                rank[i]=0;
             }
-
         }
         for(int i=0;i<6;i++){
             //后三个，即蓝方陷阱中的rank=0的动物必为红方棋子
@@ -244,16 +246,16 @@ public class ChessBoard {
                 data += rank[i] + ",";
             }
         }
-        data += PlayerCode + ",";
+        data +=turns + ",";
         return data;
     }
 
-    public int getPlayerCode() {
-        return PlayerCode;
+    public int getTurns() {
+        return turns;
     }
 
-    public void setPlayerCode(int playerCode) {
-        PlayerCode = playerCode;
+    public void setTurns(int Turns) {
+        turns=Turns;
     }
     public static void writeBoardToFile(String rank,String trap, String filePath) {
         // 创建一个JFileChooser对象
