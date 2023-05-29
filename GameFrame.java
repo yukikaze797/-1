@@ -94,7 +94,7 @@ public class GameFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String command = e.getActionCommand();
                 if (command.equals("start")) {
-                    JFrame playFrame = new PlayFrame(gameFrame.getSave());
+                    JFrame playFrame = new PlayFrame(gameFrame);
                     System.out.println("start");
                     Window windowS=SwingUtilities.getWindowAncestor(MainMenu.this);
                     windowS.dispose();
@@ -114,19 +114,15 @@ public class GameFrame extends JFrame {
                        ChessBoard board = frameC.getSaveData();
                        if(board==null){
                        } else {
-                        PlayFrame playFrameC =new PlayFrame(board);
+                        PlayFrame playFrameC =new PlayFrame(gameFrame);
                         frameC.dispose();
                         playFrameC.setVisible(true);
                        }
                        System.out.println("continue");
                        //
-                    //现在Load功能有问题
+                    //
                 }else if(command.equals("load")){
                     System.out.println("load");
-                        GameFrame frameL = gameFrame;
-                        ChessBoard boardL = frameL.getSaveData();
-                        if(boardL==null){
-                        }else{
                                 JFileChooser fileChooser = new JFileChooser();
                                 int result = fileChooser.showOpenDialog(null);
                                 if (result == JFileChooser.APPROVE_OPTION) {
@@ -139,98 +135,136 @@ public class GameFrame extends JFrame {
                                     } catch (IOException e2) {
                                         e2.printStackTrace();
                                     }
+                                    ChessBoard boardL=LoadSave(selectedFile);
+                                    if(boardL!=null){
+                                        gameFrame.setSave(boardL);
+                                        PlayFrame LoadPlay=new PlayFrame(gameFrame);
+
                                     gameFrame.dispose();
-                        }
                 Window windowS = SwingUtilities.getWindowAncestor(MainMenu.this);
                 if (windowS instanceof PlayFrame) {
                     JFrame frame = (JFrame) windowS;
                     frame =(PlayFrame) frame;
                     frame.dispose();
                 }
-                }
+                }else{
+                           JFrame error = new JFrame();
+                           error.setTitle("存档错误");
+                           error.setSize(700, 100);
+                           JLabel hint =new JLabel("错误的存档格式或存档内容");
+                           hint.setFont(new Font("错误的存档格式或存档内容",Font.BOLD,32));
+                           error.add(hint);
+                           error.setVisible(true);
+   }
+}
             }
         }
     }}
     //读存档
-    /*public ChessBoard LoadSave(File file){
+    public static ChessBoard LoadSave(File file){
         //无棋子的棋盘
       ChessBoard board = new ChessBoard();
-      int[][] arr = new int[9][7];
-      int [] rank2={-1,-1,-1,-1,-1,-1,1};
-      //读取记录数字的存档
+      //数字棋盘
+      int[][] arr = new int[10][7];
+      //用于检测最后生成的棋盘是否合法
+        ArrayList<Animals> BlueAnimalTest = new ArrayList<>();
+        ArrayList<Animals> RedAnimals = new ArrayList<>();
         //棋盘上的棋子以对应rank记录
         //非陷阱棋子文本文件转为数组
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(data));
+            BufferedReader reader = new BufferedReader(new FileReader(file));
             String line;
             int i = 0;
             while ((line = reader.readLine()) != null) {
+                if(line.trim().isEmpty()){continue;}else{
                 String[] values = line.split(",");
+                if(values.length!=7){return null;}
                 for (int j = 0; j < values.length; j++) {
                     arr[i][j] = Integer.parseInt(values[j]);
                 }
                 i++;
+            }
             }
             reader.close();
         } catch (FileNotFoundException e){
            return null;
         } catch (IOException e) {
             return null;
+        }catch (NumberFormatException e){
+            return null;
         }
         //收集陷阱格的棋子
-        try{
-            BufferedReader reader = new BufferedReader(new FileReader());//trap有7个数字
-            if(reader.readLine()!=null){
-            String[] strings= reader.readLine().split(",");
-            reader.close();
-            //陷阱格6格
+            //陷阱格6格，走棋方占一个储存位置
             Animals[] TrapAnimal =new Animals[6];
-            for(int i =0;i<strings.length;i++){
-                rank2[i]=Integer.parseInt(strings[i]);
+        //获取陷阱格动物的信息
+            for(int i =0;i<arr[9].length;i++){
                 if(i<6){
-                switch (rank2[i]){
+                switch (arr[9][i]){
                     case 0:
                         continue;
                     case 1:
                         TrapAnimal[i]=new Rat(1);
+                        break;
                     case 2:
                         TrapAnimal[i]=new Cat(1);
+                        break;
                     case 3:
                         TrapAnimal[i]=new Dog(1);
+                        break;
                     case 4:
                         TrapAnimal[i]=new Wolf(1);
+                        break;
                     case 5:
                         TrapAnimal[i]=new Leopard(1);
+                        break;
                     case 6:
                         TrapAnimal[i]=new Tiger(1);
+                        break;
                     case 7:
                         TrapAnimal[i]=new Lion(1);
+                        break;
                     case 8:
                         TrapAnimal[i]=new Elephant(1);
+                        break;
                     case -1:
                         TrapAnimal[i]=new Rat(-1);
+                        break;
                     case -2:
                         TrapAnimal[i]=new Cat(-1);
+                        break;
                     case -3:
                         TrapAnimal[i]=new Dog(-1);
+                        break;
                     case -4:
                         TrapAnimal[i]=new Wolf(-1);
+                        break;
                     case -5:
                         TrapAnimal[i]=new Leopard(-1);
+                        break;
                     case -6:
                         TrapAnimal[i]=new Tiger(-1);
+                        break;
                     case -7:
                         TrapAnimal[i]=new Lion(-1);
+                        break;
                     case -8:
                         TrapAnimal[i]=new Elephant(-1);
+                        break;
                     default:
                         continue;
                 }
              }else{
-                    board.setPlayerCode(rank2[6]);
+                    board.setTurns(arr[9][6]);
                 }
-       }
+            }
+            //在陷阱格放置动物
             for(int i=0;i<TrapAnimal.length-1;i++){
+                if(TrapAnimal[i]!=null){
+                if(TrapAnimal[i].getRank()<0){
+                    RedAnimals.add(TrapAnimal[i]);
+                }else{
+                    BlueAnimalTest.add(TrapAnimal[i]);
+                }
                 TrapAnimal[i].setRank(0);
                 if(i == 0){
                     board.setCellAnimal(0,2,TrapAnimal[i]);
@@ -245,13 +279,8 @@ public class GameFrame extends JFrame {
                 }else {
                     board.setCellAnimal(8,4,TrapAnimal[i]);
                 }
-            }}else{
-                reader.close();
-                return  new ChessBoard(new Person(-1),new Person(1));
+                }
             }
-        }catch (IOException e){
-            e.printStackTrace();
-        }
         //整理棋盘，放置非陷阱格棋子
         for(int i =0;i<9;i++){
             for(int j=0;j<7;j++){
@@ -260,43 +289,94 @@ public class GameFrame extends JFrame {
                         continue;
                     case -8:
                         board.setCellAnimal(i,j,new Elephant(-1));
+                        break;
                     case -7:
                         board.setCellAnimal(i,j,new Lion(-1));
+                        break;
                     case -6:
                         board.setCellAnimal(i,j,new Tiger(-1));
+                        break;
                     case -5:
                         board.setCellAnimal(i,j,new Leopard(-1));
+                        break;
                     case -4:
                         board.setCellAnimal(i,j,new Wolf(-1));
+                        break;
                     case -3:
                         board.setCellAnimal(i,j,new Dog(-1));
+                        break;
                     case -2:
                         board.setCellAnimal(i,j,new Cat(-1));
+                        break;
                     case -1:
                         board.setCellAnimal(i,j,new Rat(-1));
+                        break;
                     case 8:
                         board.setCellAnimal(i,j,new Elephant(1));
+                        break;
                     case 7:
                         board.setCellAnimal(i,j,new Lion(1));
+                        break;
                     case 6:
                         board.setCellAnimal(i,j,new Tiger(1));
+                        break;
                     case 5:
                         board.setCellAnimal(i,j,new Leopard(1));
+                        break;
                     case 4:
                         board.setCellAnimal(i,j,new Wolf(1));
+                        break;
                     case 3:
                         board.setCellAnimal(i,j,new Dog(1));
+                        break;
                     case 2:
                         board.setCellAnimal(i,j,new Cat(1));
+                        break;
                     case 1:
                         board.setCellAnimal(i,j,new Rat(1));
+                        break;
                     case 0:
                       continue;
                 }
+                if(board.getGameBoard()[i][j].getAnimal().getRank()<0){
+                    RedAnimals.add(board.getGameBoard()[i][j].getAnimal());
+                }else if(board.getGameBoard()[i][j].getAnimal().getRank()>0){
+                    BlueAnimalTest.add(board.getGameBoard()[i][j].getAnimal());
+                }
             }
         }
+        if(RedAnimals.size()>8|BlueAnimalTest.size()>8){
+            return null;
+        }
+        //检测红方是否存在重名棋子
+        for(int i =0;i < RedAnimals.size();i++){
+            for (int j=i+1;j<RedAnimals.size();j++){
+                if(RedAnimals.get(i).equals(RedAnimals.get(j))){
+                    return null;
+                }
+            }
+        }
+        //检测蓝方是否存在重名棋子
+        for(int i =0;i < BlueAnimalTest.size();i++){
+            for (int j=i+1;j<BlueAnimalTest.size();j++){
+                if(BlueAnimalTest.get(i).equals(BlueAnimalTest.get(j))){
+                    return null;
+                }
+            }
+        }
+        //检测河流内的格子
+        for(int i =3;i < 6;i++){
+            for(int j =1; j<6;j++){
+                if(j!=3){
+                    if( board.getGameBoard()[i][j].getAnimal()!=null && Math.abs(board.getGameBoard()[i][j].getAnimal().getRank())!=1){
+                        return null;
+                    }
+                }
+            }
+        }
+
 return board;
-        }*/
+        }
         public ChessBoard getSaveData(){
         return save;
         }
