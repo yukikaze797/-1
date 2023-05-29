@@ -9,6 +9,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 
 public class PlayFrame extends JFrame {
@@ -31,28 +38,54 @@ public class PlayFrame extends JFrame {
         private JPanel panel2;
        /* private int gridx = 80;
         private int gridy = 80;*/
-        //用来存档的变量
+        //该窗口下用来存档的变量save,实际上就是正在操作的棋盘
         private ChessBoard save;
+        private GameFrame gameFrame;
+        //全局回放replay
+    private ArrayList<ChessBoard> rep;
+    //用来悔棋的replay
+    private ArrayList<ChessBoard> rep1;
 
-        public PlayFrame(ChessBoard board) {
+        public PlayFrame(GameFrame gameFrame) {
+            ChessBoard board=gameFrame.getSaveData();
             if(board==null){
                 save = new ChessBoard(new Person(-1),new Person(1));
             }else{
             save = board;
             }
-            frame.setSize(600, 600);
+            rep.add(save);
+            rep1.add(save);
+            frame.setSize(1280, 800);
             MyLabelListener listener =new MyLabelListener();
             JLabel [][] JBoard = Transit(save,listener);
             panel1 = drawBoard(JBoard);
-            panel1.setLocation(300, 20);
-            frame.add(panel1);
+            panel1.setLocation(400, 50);
             panel2 = FPanel();
+            panel2.setLocation(50, 100);
+            frame.add(panel1);
             frame.add(panel2);
-            panel2.setLocation(500, 100);
+            frame.setVisible(true);
+        }
+        public PlayFrame(ChessBoard board){
+            if(board==null){
+                save = new ChessBoard(new Person(-1),new Person(1));
+            }else{
+                save = board;
+            }
+            frame.setSize(1280, 800);
+            MyLabelListener listener =new MyLabelListener();
+            JLabel [][] JBoard = Transit(save,listener);
+            JPanel mainPanel = new JPanel(new BorderLayout());
+            panel1 = drawBoard(JBoard);
+            panel1.setLocation(400, 50);
+            panel2 = FPanel();
+            panel2.setLocation(50, 100);
+            frame.add(panel1);
+            frame.add(panel2);
             frame.setVisible(true);
         }
     //给panel1用的方法
-        public JLabel [][] Transit(ChessBoard board,MyLabelListener listener){
+        public  JLabel [][] Transit(ChessBoard board,MyLabelListener listener){
             JLabel[][] JBoard = new JLabel[9][7];
             for (int i = 0; i < 9; i++) {
                 for (int j = 0; j < 7; j++) {
@@ -122,44 +155,83 @@ public class PlayFrame extends JFrame {
             }
 
         }
+            System.out.println("成功转化");
             return JBoard;
         }
-        public JPanel drawBoard(JLabel[][] JBoard){
+        public static JPanel drawBoard(JLabel[][] JBoard){
             JPanel board = new JPanel();
-            board.setSize(560, 720);
+            board.setSize(560,720);
+            board.setPreferredSize(new Dimension(560, 720));
             board.setLayout(new GridLayout(9,7));
             for (int i = 0; i < 9; i++) {
                 for (int j = 0; j < 7; j++) {
                     board.add(JBoard[i][j]);
                 }
             }
-            board.setPreferredSize(new Dimension(560,720));
+            board.setVisible(true);
+            System.out.println("成功生成可视化棋盘");
             return board;
         }
         //给panel2用的方法
         public JPanel FPanel(){
-            JPanel FPanel =new JPanel();
-            FPanel.setSize(100,600);
+            JPanel FPanel =new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    ImageIcon imageIcon = new ImageIcon("src/main/java/View/picture/背景.jpg");
+                    Image image = imageIcon.getImage();
+                    g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
+                }
+            };;
+            FPanel.setLayout(new BoxLayout(FPanel, BoxLayout.Y_AXIS));
+            FPanel.setAlignmentY(Component.CENTER_ALIGNMENT);
+            FPanel.setPreferredSize(new Dimension(400,600));
+            JButton Restart =new JButton("重新开始");
+            Restart.setActionCommand("restart");;
+            Restart.addActionListener(new ButtonListener());
+            Restart.setMaximumSize(new Dimension(170,70));
+            Restart.setMinimumSize(new Dimension(170,70));
+            //
             JButton Save = new JButton("保存游戏");
-            Save.setActionCommand("save");
-            Save.setSize(100, 20);
+            Save.setActionCommand("save");;
             Save.addActionListener(new ButtonListener());
+            Save.setMaximumSize(new Dimension(170,70));
+            Save.setMinimumSize(new Dimension(170,70));
+            Save.setOpaque(false);
+            //
             JButton huiqi = new JButton("悔棋");
             huiqi.setActionCommand("悔棋");
             huiqi.addActionListener(new ButtonListener());
+            huiqi.setMaximumSize(new Dimension(170,70));
+            huiqi.setMinimumSize(new Dimension(170,70));
+            //
             JButton Exit = new JButton("退出游戏");
             Exit.setActionCommand("exit");
             Exit.addActionListener(new ButtonListener());
+            Exit.setMaximumSize(new Dimension(170,70));
+            Exit.setMinimumSize(new Dimension(170,70));
+            //
+            JButton Load = new JButton("读取存档");
+            Load.setActionCommand("load");
+            Load.addActionListener(new ButtonListener());
+            Load.setMinimumSize(new Dimension(170,70));
+            Load.setMaximumSize(new Dimension(170,70));
+            //
+            FPanel.add(Box.createVerticalStrut(10));
+            FPanel.add(Restart);
+            FPanel.add(Box.createVerticalStrut(70));
             FPanel.add(Save);
+            FPanel.add(Box.createVerticalStrut(70));
             FPanel.add(huiqi);
+            FPanel.add(Box.createVerticalStrut(70));
+            FPanel.add(Load);
+            FPanel.add(Box.createVerticalStrut(70));
             FPanel.add(Exit);
-            FPanel.setLayout(new BoxLayout(FPanel, BoxLayout.Y_AXIS));
-            FPanel.setPreferredSize(new Dimension(100,600));
             return FPanel;
     }
         //鼠标事件适配器
         public class MyLabelListener extends MouseAdapter {
-            //获取鼠标单击的位置相对容器坐标
+            //获取鼠标单击的位置相对棋盘坐标
             //默认值为 -1
             private int lastClickedCol =-1;
             private int lastClickedRow =-1;
@@ -167,6 +239,7 @@ public class PlayFrame extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 lastClickedCol =(int)Math.floor(e.getComponent().getX()/80);
                 lastClickedRow =(int)Math.floor(e.getComponent().getY()/80);
+                System.out.printf("%d,%d \n",lastClickedRow,lastClickedCol);
             }
 
             public int getLastClickedCol() {
@@ -194,23 +267,81 @@ public class PlayFrame extends JFrame {
                     }
                     break;
                 case "save":
-                    //获取当前窗口
                      //控制台确认按钮已被点击
                         System.out.println("save");
-                     Window window = SwingUtilities.getWindowAncestor((Component) e.getSource());
-                     for(Component component: window.getComponents()) {
-                         if (component instanceof PlayFrame) {
-                             PlayFrame frame1 = (PlayFrame) component;
-                             ChessBoard.writeBoardToFile(frame1.getSave().SaveRanks(), frame1.getSave().SaveTrap(), "src/main/java/data/");
-                         }
-                     }
+                        ChessBoard.writeBoardToFile(save.SaveRanks(), save.SaveTrap(),"src/main/java/data/");
+                    //获取当前窗口
+                     //取得PlayFrame;
                       break;
+                case"load":
+                    System.out.println("click load");
+                    JFileChooser fileChooser = new JFileChooser();
+                    int result = fileChooser.showOpenDialog(null);
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        File selectedFile = fileChooser.getSelectedFile();
+                        try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                System.out.println(line);
+                            }
+                        } catch (IOException e2) {
+                            e2.printStackTrace();
+                        }
+                        ChessBoard board=GameFrame.LoadSave(selectedFile);
+                    if(board == null){
+                        JFrame error = new JFrame();
+                        error.setTitle("存档错误");
+                        error.setSize(700, 100);
+                        JLabel hint =new JLabel("错误的存档格式或存档内容");
+                        hint.setFont(new Font("错误的存档格式或存档内容",Font.BOLD,32));
+                        error.add(hint);
+                        error.setVisible(true);
+                    }else {
+                        save = board;
+                        rep.add(save);
+                        rep1.clear();
+                        rep1.add(save);
+                        JLabel [][] Label =Transit(save, new MyLabelListener());
+                        panel1.removeAll();
+                        for (int i = 0; i < 9; i++) {
+                            for (int j = 0; j < 7; j++) {
+                                panel1.add(Label[i][j]);
+                            }
+                        }
+                        panel1.revalidate();
+                        panel1.repaint();
+                        panel1.updateUI();
+                    }
+                    }
+                    break;
+                case"restart":
+                    rep1.clear();
+                    save = new ChessBoard(new Person(-1),new Person(1));
+                    rep.add(save);
+                    rep1.add(save);
+                    JLabel [][] Label =Transit(save, new MyLabelListener());
+                    panel1.removeAll();
+                    for (int i = 0; i < 9; i++) {
+                        for (int j = 0; j < 7; j++) {
+                            panel1.add(Label[i][j]);
+                        }
+                    }
+                    panel1.revalidate();
+                    panel1.repaint();
+                    panel1.updateUI();
+                    break;
+                case"huiqi":
+                    if(rep1.size()>=2){
+                        save=rep1.get(rep1.size()-2);
+                        rep.add(save);
+                        rep1.remove(rep1.size()-1);
+                    }
+                    break;
                     default:
                         break;
             }
                     }
             }
-
     public JPanel getPanel1() {
         return panel1;
     }
@@ -241,6 +372,25 @@ public class PlayFrame extends JFrame {
 
     public void setFrame(JFrame frame) {
         this.frame = frame;
+    }
+
+    public GameFrame getGameFrame() {
+        return gameFrame;
+    }
+
+    public void setGameFrame(GameFrame gameFrame) {
+        this.gameFrame = gameFrame;
+    }
+    public void updatePanel1(){
+            panel1.repaint();
+    }
+
+    public ArrayList<ChessBoard> getRep() {
+        return rep;
+    }
+
+    public void setRep(ArrayList<ChessBoard> rep) {
+        this.rep = rep;
     }
 }
 
