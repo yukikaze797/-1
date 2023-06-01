@@ -72,6 +72,7 @@ public class PlayFrame extends JFrame {
             JLabel [][] JBoard = Transit(save,listener);
             panel1 = drawBoard(JBoard);
             panel1.setLocation(400, 50);
+            panel1.addMouseListener(new PanelListener());
             panel2 = FPanel();
             panel2.setLocation(50, 100);
             frame.add(panel1);
@@ -312,8 +313,307 @@ public class PlayFrame extends JFrame {
                 lastClickedCol =(int)Math.floor(e.getComponent().getX()/80);
                 lastClickedRow =(int)Math.floor(e.getComponent().getY()/80);
                 System.out.printf("%d,%d JLabel \n ",lastClickedRow,lastClickedCol);
-                x=lastClickedCol;
-                y=lastClickedRow;
+                y=lastClickedCol;
+                x=lastClickedRow;
+                int row = x;
+                int col = y;
+                System.out.println("Mouse clicked at row " + row + ", column " + col);
+                // 移动棋子等
+                //false表示未选中棋子
+                //蓝方回合
+                if(save.getTurns()%2==0){
+                    if(selected==false){
+                        if(save.getGameBoard()[x][y].getAnimal()!=null && save.getGameBoard()[x][y].getAnimal().getRank()>0){
+                            selected=true;
+                        }else if(save.getGameBoard()[x][y].getAnimal()!=null && save.getGameBoard()[x][y].getAnimal().getRank()==0){
+                            //陷阱格动物
+                            if(save.getGameBoard()[x][y].getType()==CellType.TRAP){
+                                if(x==0&&y==2){
+                                    selected=true;
+                                }else if(x==0&&y==4){
+                                    selected=true;
+                                }else if(x==1&&y==3){
+                                    selected=true;
+                                }
+                            }
+                        }
+                        x0=x;
+                        y0=y;
+                    }else if(selected){
+                        //要移动的位置有棋子
+                        if(movable(x0, y0, x, y)&&save.getGameBoard()[x][y].isHasChess()){
+                            //大于零为蓝方棋子
+                            if(save.getGameBoard()[x][y].getAnimal().getRank()>0){
+                            }else if(save.getGameBoard()[x][y].getAnimal().getRank()<0){
+                                //蓝方棋子rank更大,吃子
+                                if(save.getGameBoard()[x][y].getAnimal().getRank()<0 && Math.abs(save.getGameBoard()[x][y].getAnimal().getRank())<Math.abs(save.getGameBoard()[x0][y0].getAnimal().getRank())){
+                                    save.getGameBoard()[x][y].removeAnimal();
+                                    save.setCellAnimal(x, y, save.getGameBoard()[x0][y0].getAnimal());
+                                    save.getGameBoard()[x0][y0].removeAnimal();
+                                    save.setTurns(save.getTurns()+1);
+                                    rep.add(save);
+                                    rep1.add(save);
+                                    //
+                                    JLabel [][] Label =Transit(save, new MyLabelListener());
+                                    panel1.removeAll();
+                                    for (int i = 0; i < 9; i++) {
+                                        for (int j = 0; j < 7; j++) {
+                                            panel1.add(Label[i][j]);
+                                        }
+                                    }
+                                    panel1.revalidate();
+                                    panel1.repaint();
+                                    panel1.updateUI();
+                                    Component[] components = panel2.getComponents();
+                                    for (Component comp : components) {
+                                        if (comp instanceof JLabel ) {
+                                            JLabel Turns = (JLabel) comp;
+                                            if(save.getTurns()%2==0){
+                                                String turns="BLUE Turns "+save.getTurns()+"";
+                                                Turns.setText(turns);
+                                            }else{
+                                                String turns = "RED Turns "+save.getTurns()+"";
+                                                Turns.setText(turns);
+                                            }
+                                        }
+                                    }
+                                    //
+                                }
+                            }else if(save.getGameBoard()[x][y].getAnimal().getRank()>0){
+                                //陷阱格
+                            }else if(((x==8 && y==2)||(x==8 && y==4)||(x==7 && y ==3)) && save.getGameBoard()[x][y].getAnimal().getRank()==0 ){
+                                save.getGameBoard()[x][y].removeAnimal();
+                                save.setCellAnimal(x, y, save.getGameBoard()[x0][y0].getAnimal());
+                                save.setTurns(save.getTurns()+1);
+                                rep.add(save);
+                                rep1.add(save);
+                                //
+                                JLabel [][] Label =Transit(save, new MyLabelListener());
+                                panel1.removeAll();
+                                for (int i = 0; i < 9; i++) {
+                                    for (int j = 0; j < 7; j++) {
+                                        panel1.add(Label[i][j]);
+                                    }
+                                }
+                                panel1.revalidate();
+                                panel1.repaint();
+                                panel1.updateUI();
+                                Component[] components = panel2.getComponents();
+                                for (Component comp : components) {
+                                    if (comp instanceof JLabel ) {
+                                        JLabel Turns = (JLabel) comp;
+                                        if(save.getTurns()%2==0){
+                                            String turns="BLUE Turns "+save.getTurns()+"";
+                                            Turns.setText(turns);
+                                        }else{
+                                            String turns = "RED Turns "+save.getTurns()+"";
+                                            Turns.setText(turns);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if(movable(x0, y0, x, y)&& save.getGameBoard()[x][y].isHasChess()==false){
+                            save.getGameBoard()[x][y].setAnimal(save.getGameBoard()[x0][y0].getAnimal());
+                            save.getGameBoard()[x0][y0].removeAnimal();
+                            save.setTurns(save.getTurns()+1);
+                            rep.add(save);
+                            rep1.add(save);
+                            //
+                            JLabel [][] Label =Transit(save, new MyLabelListener());
+                            panel1.removeAll();
+                            for (int i = 0; i < 9; i++) {
+                                for (int j = 0; j < 7; j++) {
+                                    panel1.add(Label[i][j]);
+                                }
+                            }
+                            panel1.revalidate();
+                            panel1.repaint();
+                            panel1.updateUI();
+                            Component[] components = panel2.getComponents();
+                            for (Component comp : components) {
+                                if (comp instanceof JLabel ) {
+                                    JLabel Turns = (JLabel) comp;
+                                    if(save.getTurns()%2==0){
+                                        String turns="BLUE Turns "+save.getTurns()+"";
+                                        Turns.setText(turns);
+                                    }else{
+                                        String turns = "RED Turns "+save.getTurns()+"";
+                                        Turns.setText(turns);
+                                    }
+                                }
+                            }
+
+                        }
+                        selected=false;
+                    }
+                    if(save.WinTest()==1){
+                        JFrame WinBlue=new JFrame("胜利");
+                        WinBlue.setSize(100, 100);
+                        WinBlue.setLocation(300, 200);
+                        JLabel win=new JLabel("蓝方胜");
+                        win.setFont(new Font("蓝方胜",Font.BOLD,20));
+                        WinBlue.add(win);
+                        WinBlue.setVisible(true);
+                        WinBlue.setDefaultCloseOperation(EXIT_ON_CLOSE);
+                    }else if(save.WinTest()==-1){
+                        JFrame WinBlue=new JFrame("胜利");
+                        WinBlue.setSize(100, 100);
+                        WinBlue.setLocation(300, 200);
+                        JLabel win=new JLabel("红方胜");
+                        win.setFont(new Font("红方胜",Font.BOLD,20));
+                        WinBlue.add(win);
+                        WinBlue.setVisible(true);
+                        WinBlue.setDefaultCloseOperation(EXIT_ON_CLOSE);
+                    }
+                }
+                if(save.getTurns()%2==1){
+                    if(selected==false){
+                        if(save.getGameBoard()[x][y].getAnimal()!=null && save.getGameBoard()[x][y].getAnimal().getRank()<0){
+                            selected=true;
+                        }else if(save.getGameBoard()[x][y].getAnimal()!=null && save.getGameBoard()[x][y].getAnimal().getRank()==0){
+                            //陷阱格动物
+                            if(save.getGameBoard()[x][y].getType()==CellType.TRAP){
+                                if(x==8&&y==2){
+                                    selected=true;
+                                }else if(x==8&&y==4){
+                                    selected=true;
+                                }else if(x==7&&y==3){
+                                    selected=true;
+                                }
+                            }
+                        }
+                        x0=x;
+                        y0=y;
+                    }else if(selected){
+                        //要移动的位置有棋子
+                        if(movable(x0, y0, x, y)&&save.getGameBoard()[x][y].isHasChess()){
+                            //大于零为蓝方棋子
+                            if(save.getGameBoard()[x][y].getAnimal().getRank()<0){
+                            }else if(save.getGameBoard()[x][y].getAnimal().getRank()>0){
+                                //比较rank,吃子
+                                if(save.getGameBoard()[x][y].getAnimal().getRank()>0 && Math.abs(save.getGameBoard()[x][y].getAnimal().getRank())<Math.abs(save.getGameBoard()[x0][y0].getAnimal().getRank())){
+                                    save.getGameBoard()[x][y].removeAnimal();
+                                    save.setCellAnimal(x, y, save.getGameBoard()[x0][y0].getAnimal());
+                                    save.getGameBoard()[x0][y0].removeAnimal();
+                                    save.setTurns(save.getTurns()+1);
+                                    rep.add(save);
+                                    rep1.add(save);
+                                    //重画棋盘
+                                    JLabel [][] Label =Transit(save, new MyLabelListener());
+                                    panel1.removeAll();
+                                    for (int i = 0; i < 9; i++) {
+                                        for (int j = 0; j < 7; j++) {
+                                            panel1.add(Label[i][j]);
+                                        }
+                                    }
+                                    panel1.revalidate();
+                                    panel1.repaint();
+                                    panel1.updateUI();
+                                    Component[] components = panel2.getComponents();
+                                    for (Component comp : components) {
+                                        if (comp instanceof JLabel ) {
+                                            JLabel Turns = (JLabel) comp;
+                                            if(save.getTurns()%2==0){
+                                                String turns="BLUE Turns "+save.getTurns()+"";
+                                                Turns.setText(turns);
+                                            }else{
+                                                String turns = "RED Turns "+save.getTurns()+"";
+                                                Turns.setText(turns);
+                                            }
+                                        }
+                                    }
+                                    //
+                                }
+                            }else if(save.getGameBoard()[x][y].getAnimal().getRank()>0){
+                                //陷阱格
+                            }else if(((x==8 && y==2)||(x==8 && y==4)||(x==7 && y ==3)) && save.getGameBoard()[x][y].getAnimal().getRank()==0 ){
+                                save.getGameBoard()[x][y].removeAnimal();
+                                save.setCellAnimal(x, y, save.getGameBoard()[x0][y0].getAnimal());
+                                save.setTurns(save.getTurns()+1);
+                                rep.add(save);
+                                rep1.add(save);
+                                //
+                                JLabel [][] Label =Transit(save, new MyLabelListener());
+                                panel1.removeAll();
+                                for (int i = 0; i < 9; i++) {
+                                    for (int j = 0; j < 7; j++) {
+                                        panel1.add(Label[i][j]);
+                                    }
+                                }
+                                panel1.revalidate();
+                                panel1.repaint();
+                                panel1.updateUI();
+                                Component[] components = panel2.getComponents();
+                                for (Component comp : components) {
+                                    if (comp instanceof JLabel ) {
+                                        JLabel Turns = (JLabel) comp;
+                                        if(save.getTurns()%2==0){
+                                            String turns="BLUE Turns "+save.getTurns()+"";
+                                            Turns.setText(turns);
+                                        }else{
+                                            String turns = "RED Turns "+save.getTurns()+"";
+                                            Turns.setText(turns);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if(movable(x0, y0, x, y)&& save.getGameBoard()[x][y].isHasChess()==false){
+                            save.getGameBoard()[x][y].setAnimal(save.getGameBoard()[x0][y0].getAnimal());
+                            save.getGameBoard()[x0][y0].removeAnimal();
+                            save.setTurns(save.getTurns()+1);
+                            rep.add(save);
+                            rep1.add(save);
+                            //
+                            JLabel [][] Label =Transit(save, new MyLabelListener());
+                            panel1.removeAll();
+                            for (int i = 0; i < 9; i++) {
+                                for (int j = 0; j < 7; j++) {
+                                    panel1.add(Label[i][j]);
+                                }
+                            }
+                            panel1.revalidate();
+                            panel1.repaint();
+                            panel1.updateUI();
+                            Component[] components = panel2.getComponents();
+                            for (Component comp : components) {
+                                if (comp instanceof JLabel ) {
+                                    JLabel Turns = (JLabel) comp;
+                                    if(save.getTurns()%2==0){
+                                        String turns="BLUE Turns "+save.getTurns()+"";
+                                        Turns.setText(turns);
+                                    }else{
+                                        String turns = "RED Turns "+save.getTurns()+"";
+                                        Turns.setText(turns);
+                                    }
+                                }
+                            }
+
+                        }
+                        selected=false;
+                    }
+                    if(save.WinTest()==1){
+                        JFrame WinBlue=new JFrame("胜利");
+                        WinBlue.setSize(100, 100);
+                        WinBlue.setLocation(300, 200);
+                        JLabel win=new JLabel("蓝方胜");
+                        win.setFont(new Font("蓝方胜",Font.BOLD,20));
+                        WinBlue.add(win);
+                        WinBlue.setVisible(true);
+                        WinBlue.setDefaultCloseOperation(EXIT_ON_CLOSE);
+                    }else if(save.WinTest()==-1){
+                        JFrame WinBlue=new JFrame("胜利");
+                        WinBlue.setSize(100, 100);
+                        WinBlue.setLocation(300, 200);
+                        JLabel win=new JLabel("红方胜");
+                        win.setFont(new Font("红方胜",Font.BOLD,20));
+                        WinBlue.add(win);
+                        WinBlue.setVisible(true);
+                        WinBlue.setDefaultCloseOperation(EXIT_ON_CLOSE);
+                    }
+                }
+                System.out.println(selected);
             }
 
             public int getLastClickedCol() {
@@ -418,6 +718,21 @@ public class PlayFrame extends JFrame {
                     panel1.revalidate();
                     panel1.repaint();
                     panel1.updateUI();
+                    Component[] components = panel2.getComponents();
+                    for (Component comp : components) {
+                        if (comp instanceof JLabel ) {
+                            JLabel Turns = (JLabel) comp;
+                            if(save.getTurns()%2==0){
+                                String turns="BLUE Turns "+save.getTurns()+"";
+                                Turns.setText(turns);
+                            }else{
+                                String turns = "RED Turns "+save.getTurns()+"";
+                                Turns.setText(turns);
+                            }
+                            // do something with myLabel
+                            break;
+                        }
+                    }
                     break;
                 case"huiqi":
                     if(rep1.size()>=2){
@@ -431,9 +746,9 @@ public class PlayFrame extends JFrame {
             }
                     }
             }
-            public class PanelListener implements ActionListener{
+            public class PanelListener implements MouseListener {
             @Override
-                public void actionPerformed(ActionEvent e){
+                public void mouseClicked(MouseEvent e){
                     int row = x;
                     int col = y;
                     System.out.println("Mouse clicked at row " + row + ", column " + col);
@@ -456,9 +771,303 @@ public class PlayFrame extends JFrame {
                             }
                         }
                     }
+                    x0=x;
+                    y0=y;
+                }else if(selected){
+                    //要移动的位置有棋子
+                    if(movable(x0, y0, x, y)&&save.getGameBoard()[x][y].isHasChess()){
+                        //大于零为蓝方棋子
+                        if(save.getGameBoard()[x][y].getAnimal().getRank()>0){
+                        }else if(save.getGameBoard()[x][y].getAnimal().getRank()<0){
+                            //蓝方棋子rank更大,吃子
+                            if(save.getGameBoard()[x][y].getAnimal().getRank()<0 && Math.abs(save.getGameBoard()[x][y].getAnimal().getRank())<Math.abs(save.getGameBoard()[x0][y0].getAnimal().getRank())){
+                                save.getGameBoard()[x][y].removeAnimal();
+                                save.setCellAnimal(x, y, save.getGameBoard()[x0][y0].getAnimal());
+                                save.getGameBoard()[x0][y0].removeAnimal();
+                                save.setTurns(save.getTurns()+1);
+                                rep.add(save);
+                                rep1.add(save);
+                                //
+                                JLabel [][] Label =Transit(save, new MyLabelListener());
+                                panel1.removeAll();
+                                for (int i = 0; i < 9; i++) {
+                                    for (int j = 0; j < 7; j++) {
+                                        panel1.add(Label[i][j]);
+                                    }
+                                }
+                                panel1.revalidate();
+                                panel1.repaint();
+                                panel1.updateUI();
+                                Component[] components = panel2.getComponents();
+                                for (Component comp : components) {
+                                    if (comp instanceof JLabel ) {
+                                        JLabel Turns = (JLabel) comp;
+                                        if(save.getTurns()%2==0){
+                                            String turns="BLUE Turns "+save.getTurns()+"";
+                                            Turns.setText(turns);
+                                        }else{
+                                            String turns = "RED Turns "+save.getTurns()+"";
+                                            Turns.setText(turns);
+                                        }
+                                    }
+                                }
+                                //
+                            }
+                        }else if(save.getGameBoard()[x][y].getAnimal().getRank()>0){
+                            //陷阱格
+                        }else if(((x==8 && y==2)||(x==8 && y==4)||(x==7 && y ==3)) && save.getGameBoard()[x][y].getAnimal().getRank()==0 ){
+                            save.getGameBoard()[x][y].removeAnimal();
+                            save.setCellAnimal(x, y, save.getGameBoard()[x0][y0].getAnimal());
+                            save.setTurns(save.getTurns()+1);
+                            rep.add(save);
+                            rep1.add(save);
+                            //
+                            JLabel [][] Label =Transit(save, new MyLabelListener());
+                            panel1.removeAll();
+                            for (int i = 0; i < 9; i++) {
+                                for (int j = 0; j < 7; j++) {
+                                    panel1.add(Label[i][j]);
+                                }
+                            }
+                            panel1.revalidate();
+                            panel1.repaint();
+                            panel1.updateUI();
+                            Component[] components = panel2.getComponents();
+                            for (Component comp : components) {
+                                if (comp instanceof JLabel ) {
+                                    JLabel Turns = (JLabel) comp;
+                                    if(save.getTurns()%2==0){
+                                        String turns="BLUE Turns "+save.getTurns()+"";
+                                        Turns.setText(turns);
+                                    }else{
+                                        String turns = "RED Turns "+save.getTurns()+"";
+                                        Turns.setText(turns);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(movable(x0, y0, x, y)&& save.getGameBoard()[x][y].isHasChess()==false){
+                        save.getGameBoard()[x][y].setAnimal(save.getGameBoard()[x0][y0].getAnimal());
+                        save.getGameBoard()[x0][y0].removeAnimal();
+                        save.setTurns(save.getTurns()+1);
+                        rep.add(save);
+                        rep1.add(save);
+                        //
+                        JLabel [][] Label =Transit(save, new MyLabelListener());
+                        panel1.removeAll();
+                        for (int i = 0; i < 9; i++) {
+                            for (int j = 0; j < 7; j++) {
+                                panel1.add(Label[i][j]);
+                            }
+                        }
+                        panel1.revalidate();
+                        panel1.repaint();
+                        panel1.updateUI();
+                        Component[] components = panel2.getComponents();
+                        for (Component comp : components) {
+                            if (comp instanceof JLabel ) {
+                                JLabel Turns = (JLabel) comp;
+                                if(save.getTurns()%2==0){
+                                    String turns="BLUE Turns "+save.getTurns()+"";
+                                    Turns.setText(turns);
+                                }else{
+                                    String turns = "RED Turns "+save.getTurns()+"";
+                                    Turns.setText(turns);
+                                }
+                            }
+                        }
+
+                    }
+                    selected=false;
                 }
-                }}
+                if(save.WinTest()==1){
+                    JFrame WinBlue=new JFrame("胜利");
+                    WinBlue.setSize(100, 100);
+                    WinBlue.setLocation(300, 200);
+                    JLabel win=new JLabel("蓝方胜");
+                    win.setFont(new Font("蓝方胜",Font.BOLD,20));
+                    WinBlue.add(win);
+                    WinBlue.setVisible(true);
+                    WinBlue.setDefaultCloseOperation(EXIT_ON_CLOSE);
+                }else if(save.WinTest()==-1){
+                    JFrame WinBlue=new JFrame("胜利");
+                    WinBlue.setSize(100, 100);
+                    WinBlue.setLocation(300, 200);
+                    JLabel win=new JLabel("红方胜");
+                    win.setFont(new Font("红方胜",Font.BOLD,20));
+                    WinBlue.add(win);
+                    WinBlue.setVisible(true);
+                    WinBlue.setDefaultCloseOperation(EXIT_ON_CLOSE);
+                }
+                }
+                if(save.getTurns()%2==1){
+                    if(selected==false){
+                        if(save.getGameBoard()[x][y].getAnimal()!=null && save.getGameBoard()[x][y].getAnimal().getRank()<0){
+                            selected=true;
+                        }else if(save.getGameBoard()[x][y].getAnimal()!=null && save.getGameBoard()[x][y].getAnimal().getRank()==0){
+                            //陷阱格动物
+                            if(save.getGameBoard()[x][y].getType()==CellType.TRAP){
+                                if(x==8&&y==2){
+                                    selected=true;
+                                }else if(x==8&&y==4){
+                                    selected=true;
+                                }else if(x==7&&y==3){
+                                    selected=true;
+                                }
+                            }
+                        }
+                        x0=x;
+                        y0=y;
+                    }else if(selected){
+                        //要移动的位置有棋子
+                        if(movable(x0, y0, x, y)&&save.getGameBoard()[x][y].isHasChess()){
+                            //大于零为蓝方棋子
+                            if(save.getGameBoard()[x][y].getAnimal().getRank()<0){
+                            }else if(save.getGameBoard()[x][y].getAnimal().getRank()>0){
+                                //比较rank,吃子
+                                if(save.getGameBoard()[x][y].getAnimal().getRank()>0 && Math.abs(save.getGameBoard()[x][y].getAnimal().getRank())<Math.abs(save.getGameBoard()[x0][y0].getAnimal().getRank())){
+                                    save.getGameBoard()[x][y].removeAnimal();
+                                    save.setCellAnimal(x, y, save.getGameBoard()[x0][y0].getAnimal());
+                                    save.getGameBoard()[x0][y0].removeAnimal();
+                                    save.setTurns(save.getTurns()+1);
+                                    rep.add(save);
+                                    rep1.add(save);
+                                    //重画棋盘
+                                    JLabel [][] Label =Transit(save, new MyLabelListener());
+                                    panel1.removeAll();
+                                    for (int i = 0; i < 9; i++) {
+                                        for (int j = 0; j < 7; j++) {
+                                            panel1.add(Label[i][j]);
+                                        }
+                                    }
+                                    panel1.revalidate();
+                                    panel1.repaint();
+                                    panel1.updateUI();
+                                    Component[] components = panel2.getComponents();
+                                    for (Component comp : components) {
+                                        if (comp instanceof JLabel ) {
+                                            JLabel Turns = (JLabel) comp;
+                                            if(save.getTurns()%2==0){
+                                                String turns="BLUE Turns "+save.getTurns()+"";
+                                                Turns.setText(turns);
+                                            }else{
+                                                String turns = "RED Turns "+save.getTurns()+"";
+                                                Turns.setText(turns);
+                                            }
+                                        }
+                                    }
+                                    //
+                                }
+                            }else if(save.getGameBoard()[x][y].getAnimal().getRank()>0){
+                                //陷阱格
+                            }else if(((x==8 && y==2)||(x==8 && y==4)||(x==7 && y ==3)) && save.getGameBoard()[x][y].getAnimal().getRank()==0 ){
+                                save.getGameBoard()[x][y].removeAnimal();
+                                save.setCellAnimal(x, y, save.getGameBoard()[x0][y0].getAnimal());
+                                save.setTurns(save.getTurns()+1);
+                                rep.add(save);
+                                rep1.add(save);
+                                //
+                                JLabel [][] Label =Transit(save, new MyLabelListener());
+                                panel1.removeAll();
+                                for (int i = 0; i < 9; i++) {
+                                    for (int j = 0; j < 7; j++) {
+                                        panel1.add(Label[i][j]);
+                                    }
+                                }
+                                panel1.revalidate();
+                                panel1.repaint();
+                                panel1.updateUI();
+                                Component[] components = panel2.getComponents();
+                                for (Component comp : components) {
+                                    if (comp instanceof JLabel ) {
+                                        JLabel Turns = (JLabel) comp;
+                                        if(save.getTurns()%2==0){
+                                            String turns="BLUE Turns "+save.getTurns()+"";
+                                            Turns.setText(turns);
+                                        }else{
+                                            String turns = "RED Turns "+save.getTurns()+"";
+                                            Turns.setText(turns);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if(movable(x0, y0, x, y)&& save.getGameBoard()[x][y].isHasChess()==false){
+                            save.getGameBoard()[x][y].setAnimal(save.getGameBoard()[x0][y0].getAnimal());
+                            save.getGameBoard()[x0][y0].removeAnimal();
+                            save.setTurns(save.getTurns()+1);
+                            rep.add(save);
+                            rep1.add(save);
+                            //
+                            JLabel [][] Label =Transit(save, new MyLabelListener());
+                            panel1.removeAll();
+                            for (int i = 0; i < 9; i++) {
+                                for (int j = 0; j < 7; j++) {
+                                    panel1.add(Label[i][j]);
+                                }
+                            }
+                            panel1.revalidate();
+                            panel1.repaint();
+                            panel1.updateUI();
+                            Component[] components = panel2.getComponents();
+                            for (Component comp : components) {
+                                if (comp instanceof JLabel ) {
+                                    JLabel Turns = (JLabel) comp;
+                                    if(save.getTurns()%2==0){
+                                        String turns="BLUE Turns "+save.getTurns()+"";
+                                        Turns.setText(turns);
+                                    }else{
+                                        String turns = "RED Turns "+save.getTurns()+"";
+                                        Turns.setText(turns);
+                                    }
+                                }
+                            }
+
+                        }
+                        selected=false;
+                    }
+                    if(save.WinTest()==1){
+                        JFrame WinBlue=new JFrame("胜利");
+                        WinBlue.setSize(100, 100);
+                        WinBlue.setLocation(300, 200);
+                        JLabel win=new JLabel("蓝方胜");
+                        win.setFont(new Font("蓝方胜",Font.BOLD,20));
+                        WinBlue.add(win);
+                        WinBlue.setVisible(true);
+                        WinBlue.setDefaultCloseOperation(EXIT_ON_CLOSE);
+                    }else if(save.WinTest()==-1){
+                        JFrame WinBlue=new JFrame("胜利");
+                        WinBlue.setSize(100, 100);
+                        WinBlue.setLocation(300, 200);
+                        JLabel win=new JLabel("红方胜");
+                        win.setFont(new Font("红方胜",Font.BOLD,20));
+                        WinBlue.add(win);
+                        WinBlue.setVisible(true);
+                        WinBlue.setDefaultCloseOperation(EXIT_ON_CLOSE);
+                    }
+                }
             }
+            @Override
+                public void mouseEntered(MouseEvent e){}
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    // 处理鼠标按下事件
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    // 处理鼠标释放事件
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    // 处理鼠标离开事件
+                }
+
+            }
+
+
+
 
     public JPanel getPanel1() {
         return panel1;
@@ -510,17 +1119,164 @@ public class PlayFrame extends JFrame {
     public void setRep(ArrayList<ChessBoard> rep) {
         this.rep = rep;
     }
-    public boolean riverLegal(int lastClickedCol, int lastClickedRow){
-        if(save.getGameBoard()[lastClickedCol][lastClickedRow].getAnimal().getRank() == 1) {
-            return true;
-        }else if(save.getGameBoard()[lastClickedCol][lastClickedRow].getAnimal().getRank() == -1) {
-                return true;
+        public boolean movable(int lastCol, int lastRow,int NewCol,int NewRol){
+            if(lastCol==NewCol&&lastRow==NewRol){return false;}
+            int rank =Math.abs(save.getGameBoard()[lastCol][lastRow].getAnimal().getRank());
+            if(Math.abs(save.getGameBoard()[lastCol][lastRow].getAnimal().getRank())==1){
+                //检测是否为相邻四格
+                if(Math.abs(lastCol-NewCol)>=2&Math.abs(lastRow-NewRol)>=2){
+                    return false;
+                    //对角线
+                }else if(Math.abs(lastCol-NewCol)==1 && Math.abs(lastRow-NewRol)==1){
+                    return false;
+                }else{
+                    return true;
+                }
+                //选中狮或者虎
             }
-            else {
+            else if (Math.abs(save.getGameBoard()[lastCol][lastRow].getAnimal().getRank()) == 6 & Math.abs(save.getGameBoard()[lastCol][lastRow].getAnimal().getRank()) == 7) {
+                //4*4 区域边缘
+                if(Math.abs(lastCol-NewCol)==2&Math.abs(lastRow-NewRol)==2){
+                    return false;
+                    //对角线
+                }else if(Math.abs(lastCol-NewCol)==1&&Math.abs(lastRow-NewRol)==1){
+                    return false;
+                    //跳河
+                }else if(Math.abs(lastCol-NewCol)==4&&Math.abs(lastRow-NewRol)==0){
+                    //跳河纵向检测
+                    //向上跳
+                    if(lastCol>NewCol){
+                        int Rn=0;
+                        for(int i=1;i<=3;i++){
+                            if(save.getGameBoard()[lastCol-i][lastRow].getType()==CellType.RIVER){
+                                Rn +=1;
+                            }else{
+                                break;
+                            }
+                        }
+                        if(Rn==3){
+                            return true;
+                        }else{
+                            return false;
+                        }
+                    }else if(lastCol<NewCol){
+                        int Rn=0;
+                        for(int i=1;i<=3;i++){
+                            if(save.getGameBoard()[lastCol+i][lastRow].getType()==CellType.RIVER){
+                                Rn +=1;
+                            }else{
+                                break;
+                            }
+                        }
+                        if(Rn==3){
+                            return true;
+                        }else{
+                            return false;
+                        }
+                    }else {
+                        return false;
+                    }
+                    //横跳
+                }else if(Math.abs(lastCol-NewCol)==0&&Math.abs(lastRow-NewRol)==3){
+                    //左跳
+                    if(lastRow > NewRol){
+                        int Rn=0;
+                        for(int i = 1;i<3;i++){
+                            if(save.getGameBoard()[lastCol][lastRow-i].getType()==CellType.RIVER){
+                                Rn +=1;
+                            }else{
+                                break;
+                            }
+                        }
+                        if(Rn==2){
+                            return true;
+                        }else{
+                            return false;
+                        }
+
+                    }else if(lastRow < NewRol){
+                        int Rn=0;
+                        for(int i = lastRow;i<NewRol;i++){
+                            if(save.getGameBoard()[lastCol][i].getType()==CellType.RIVER){
+                                Rn +=1;
+                            }else{
+                                break;
+                            }
+                        }
+                        if(Rn==2){
+                            return true;
+                        }else{
+                            return false;
+                        }
+
+                    }else{
+                        return false;
+                    }
+            }else if(Math.abs(lastCol-NewCol)==1&&lastRow==NewRol){
+                    if(save.getGameBoard()[NewCol][NewRol].getType()==CellType.RIVER){
+                        return false;
+                    }else{
+                        return true;
+                    }
+            }else if(Math.abs(lastRow-NewRol)==1&& lastCol==NewCol){
+                    if(save.getGameBoard()[NewCol][NewRol].getType()==CellType.RIVER){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }else{
+                    return false;
+                }
+        } else if(Math.abs(rank)!=6 && Math.abs(rank)!=7 && Math.abs(rank)!=1){
+                //是否为相邻四格
+                //步长>2的区域
+                if(Math.abs(lastCol-NewCol)>=2 & Math.abs(lastRow-NewRol)>=2){
+                    return false;
+                }else if(Math.abs(lastCol-NewCol)==1&&Math.abs(NewRol-lastRow)==0){
+                    if(save.getGameBoard()[NewCol][NewRol].getType()==CellType.RIVER){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }else if(Math.abs(lastCol-NewCol)==0&&Math.abs(NewRol-lastRow)==1){
+                    if(save.getGameBoard()[NewCol][NewRol].getType()==CellType.RIVER){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }else{
+                    return false;
+            }
+            }else{
                 return false;
             }
         }
+        public void UpdatePanels(){
+            JLabel [][] Label =Transit(save, new MyLabelListener());
+            panel1.removeAll();
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 7; j++) {
+                    panel1.add(Label[i][j]);
+                }
+            }
+            panel1.revalidate();
+            panel1.repaint();
+            panel1.updateUI();
+            Component[] components = panel2.getComponents();
+            for (Component comp : components) {
+                if (comp instanceof JLabel ) {
+                    JLabel Turns = (JLabel) comp;
+                    if(save.getTurns()%2==0){
+                        String turns="BLUE Turns "+save.getTurns()+"";
+                        Turns.setText(turns);
+                    }else{
+                        String turns = "RED Turns "+save.getTurns()+"";
+                        Turns.setText(turns);
+                    }
+        }
     }
+        }
+}
 
 
 
